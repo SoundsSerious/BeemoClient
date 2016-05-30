@@ -21,7 +21,7 @@ from twisted.internet.interfaces import IReadDescriptor
 from zope import interface
 
 PORT = 18330
-HOST = 'frisbeem.local'
+HOST = '192.168.1.2'
 sdref = None
 
 def broadcast(reactor, regtype, port, name=None):
@@ -73,6 +73,12 @@ class Beem(LineReceiver):
     
     def __init__(self, factory):
         self.factory = factory
+        reactor.callLater(0.05,self.thx)
+        
+    def thx(self):
+        log.msg('Sending thx')
+        self.transport.write('1')
+        reactor.callLater(0.05,self.thx)
     
     def connectionMade(self):
         self.factory.app.log( 'Connection Made Sending Resp.' )
@@ -101,10 +107,8 @@ class BeemoClient(ReconnectingClientFactory):
     def clientConnectionLost(self, connector, reason):
         self.app.log('Lost connection.  Reason:' + str(reason))
         ReconnectingClientFactory.clientConnectionLost(self, connector, reason)
-        #connector.connect()
 
     def clientConnectionFailed(self, connector, reason):
         self.app.log('Connection failed. Reason:' + str(reason))
         ReconnectingClientFactory.clientConnectionFailed(self, connector,reason)
-        #connector.connect()
         

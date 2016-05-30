@@ -67,7 +67,7 @@ class BufferLog(ScrollableLabel):
         
     def addText(self, text):
         self.log.append( '[color=#87CEEB]{}||[/color]  [color=#E0FFFF]{}[/color]'\
-                            .format(dt.now().utcnow(),text) )        
+                            .format(dt.now().utcnow(),str(text)) )        
 
 if __name__ == '__main__':
     class MyApp(App):
