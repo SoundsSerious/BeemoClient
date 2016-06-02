@@ -71,18 +71,15 @@ class MDNS_ServiceDescriptor(object):
 
 class Beem(LineReceiver):
     
+    it = True 
+    
     def __init__(self, factory):
         self.factory = factory
-        reactor.callLater(0.05,self.thx)
         
-    def thx(self):
-        log.msg('Sending thx')
-        self.transport.write('1')
-        reactor.callLater(0.05,self.thx)
-    
     def connectionMade(self):
         self.factory.app.log( 'Connection Made Sending Resp.' )
         self.sendLine("What's your name?")
+        self.factory.app.on_connection(self)
         
     def lineReceived(self, line):
         self.factory.app.log( line )

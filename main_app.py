@@ -51,6 +51,9 @@ class BeemoBar(ActionBar):
     pass
  
 class BeemoApp(App):
+
+    _client = None    
+    
     def build(self):
         lay = BoxLayout(orientation = 'vertical')
         
@@ -59,10 +62,20 @@ class BeemoApp(App):
         
         lay.add_widget(ab)
         lay.add_widget(tb_panel)
-         
+        
+        self.onButton = Button(text = 'ON')
+        self.onButton.bind( on_press = self.call_on)
+        
+        self.offButton = Button(text = 'OFF')
+        self.offButton.bind( on_press = self.call_off)
+        
+        powerWidget = BoxLayout(orientation = 'vertical')
+        powerWidget.add_widget( self.onButton )
+        powerWidget.add_widget( self.offButton )
+        
         #Create text tab          
         th_text_head = TabbedPanelHeader(text='Power')
-        th_text_head.content= Label(text='This is my text content')
+        th_text_head.content= powerWidget
         
         #Create image tab
         th_img_head= TabbedPanelHeader(text='Color')
@@ -81,10 +94,25 @@ class BeemoApp(App):
         Clock.schedule_once(self.start_netService)
         return lay
         
+    def on_connection(self, client):
+        self.log("connected succesfully!")
+        self._client = client
+        
     def log(self, text):
         '''Call Back From BEEM'''
         #We add text to BufferLog
         self._log.addText( text )
+        
+    def sendCommand(self,primaryKey,secondaryKey,argument=''):
+        if self._client:
+            msg = '{} {} {}'.format( primaryKey, secondaryKey, argument)
+            self._client.sendLine(msg)
+            
+    def call_on(self,instance):
+        self.sendCommand('PWR','ONN')
+
+    def call_off(self,instance):
+        self.sendCommand('PWR','OFF')
         
     def start_netService(self,dt):
         #Call back cus argument
